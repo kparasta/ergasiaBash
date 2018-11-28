@@ -1,0 +1,51 @@
+#!/bin/bash
+
+file=$1
+
+
+isupdated(){
+if [ ${line:0:1} != "#" ]; then
+
+        html=$(curl -s $line)
+
+
+        res=$?
+
+        filename=$(echo "$line" | tr --delete /)
+         	      
+       		touch $filename.txt
+
+
+        if test "$res" != "0"; then
+
+                echo "$line FAILED"
+                rm $filename.txt
+                echo "FAILED">>"$filename".txt
+
+
+        else
+
+
+                cont=$(<$filename.txt)
+
+                if [ "$cont" == "" ]; then
+                        echo "$line INIT"
+                elif [ "$cont" != "$html" ]; then
+                        echo "$line"
+                fi
+
+
+                rm $filename.txt
+                echo "$html">>"$filename".txt
+
+        fi
+fi
+
+}
+
+
+
+while read line; do
+
+	isupdated "$line" &
+done <$file
